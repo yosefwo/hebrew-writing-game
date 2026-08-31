@@ -6,16 +6,16 @@ const niqqud = [
   { name:'חיריק', spokenName:'חִירִיק', demo:'קִ', example:'אִישׁ', hint:'צליל אִי' },
   { name:'חולם', spokenName:'חוֹלָם', demo:'קֹ', example:'אוֹר', hint:'צליל אוֹ' },
   { name:'שורוק', spokenName:'שׁוּרוּק', demo:'קוּ', example:'סוּס', hint:'צליל אוּ' },
-  { name:'קיבוץ', spokenName:'קִבּוּץ', demo:'קֻ', example:'קֻפָּה', hint:'צליל אוּ' },
+  { name:'קובוץ', spokenName:'קֻבּוּץ', demo:'קֻ', example:'קֻפָּה', hint:'צליל אוּ' },
   { name:'שווא', spokenName:'שְׁוָא', demo:'קְ', example:'גְּבִינָה', hint:'לפעמים נשמע ולפעמים נח' }
 ];
 
 const niqqudSoundGroups = [
-  { id:'a', label:'קמץ או פתח', forms:'קָ  /  קַ', variants:[letter => letter+'ָ', letter => letter+'ַ'] },
-  { id:'e', label:'צירה או סגול', forms:'קֵ  /  קֶ', variants:[letter => letter+'ֵ', letter => letter+'ֶ'] },
-  { id:'i', label:'חיריק', forms:'קִ', variants:[letter => letter+'ִ'] },
-  { id:'o', label:'חולם', forms:'קֹ', variants:[letter => letter+'ֹ'] },
-  { id:'u', label:'שורוק או קיבוץ', forms:'קוּ  /  קֻ', variants:[letter => letter+'וּ', letter => letter+'ֻ'] }
+  { id:'a', label:'קָמָץ אוֹ פַּתָּח', forms:'קָ  /  קַ', examples:'דָּג · בַּת', variants:[letter => letter+'ָ', letter => letter+'ַ'] },
+  { id:'e', label:'צֵירֵי אוֹ סֶגּוֹל', forms:'קֵ  /  קֶ', examples:'עֵץ · יֶלֶד', variants:[letter => letter+'ֵ', letter => letter+'ֶ'] },
+  { id:'i', label:'חִירִיק', forms:'קִ', examples:'אִישׁ', variants:[letter => letter+'ִ'] },
+  { id:'o', label:'חוֹלָם', forms:'קֹ', examples:'אוֹר', variants:[letter => letter+'ֹ'] },
+  { id:'u', label:'שׁוּרוּק אוֹ קֻבּוּץ', forms:'קוּ  /  קֻ', examples:'סוּס · קֻפָּה', variants:[letter => letter+'וּ', letter => letter+'ֻ'] }
 ];
 
 const niqqudPracticeLetters = [...'זלמנסרש'];
@@ -42,11 +42,10 @@ function nextNiqqudQuestion() {
   const letter = niqqudPracticeLetters[Math.floor(Math.random() * niqqudPracticeLetters.length)];
   const makeSyllable = group.variants[Math.floor(Math.random() * group.variants.length)];
   niqqudTarget = { group, syllable:makeSyllable(letter) };
-  byId('niqqudletter').textContent = niqqudTarget.syllable;
-  byId('niqqudprompt').textContent = 'איזה ניקוד שמעתם?';
+  byId('niqqudprompt').textContent = 'הקשיבו לאות ובחרו את הניקוד';
   byId('niqqudcounter').textContent = `הצלחות: ${niqqudScore} מתוך 8`;
   byId('niqqudfeedback').textContent = '';
-  byId('niqqudoptions').innerHTML = shuffled(niqqudSoundGroups).map(option => `<button class="game-option niqqud-answer" onclick="checkNiqqud('${option.id}',this)"><strong>${option.forms}</strong><small>${option.label}</small></button>`).join('');
+  byId('niqqudoptions').innerHTML = shuffled(niqqudSoundGroups).map(option => `<button class="game-option niqqud-answer" onclick="checkNiqqud('${option.id}',this)"><strong>${option.forms}</strong><small>${option.label}</small><span>${option.examples}</span></button>`).join('');
   setTimeout(repeatNiqqud, 300);
 }
 
