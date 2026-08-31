@@ -1,26 +1,36 @@
 const niqqud = [
-  { name:'קמץ', spokenName:'קָמָץ', symbol:'אָ', example:'דָּג', hint:'צליל אַ' },
-  { name:'פתח', spokenName:'פַּתָּח', symbol:'אַ', example:'בַּת', hint:'צליל אַ' },
-  { name:'צירה', spokenName:'צֵירֵי', symbol:'אֵ', example:'עֵץ', hint:'צליל אֵ' },
-  { name:'סגול', spokenName:'סֶגּוֹל', symbol:'אֶ', example:'יֶלֶד', hint:'צליל אֶ' },
-  { name:'חיריק', spokenName:'חִירִיק', symbol:'אִ', example:'אִישׁ', hint:'צליל אִי' },
-  { name:'חולם', spokenName:'חוֹלָם', symbol:'אֹ', example:'אוֹר', hint:'צליל אוֹ' },
-  { name:'שורוק', spokenName:'שׁוּרוּק', symbol:'אוּ', example:'סוּס', hint:'צליל אוּ' },
-  { name:'קיבוץ', spokenName:'קִבּוּץ', symbol:'אֻ', example:'כֻּלָּם', hint:'צליל אוּ' },
-  { name:'שווא', spokenName:'שְׁוָא', symbol:'אְ', example:'גְּבִינָה', hint:'לפעמים נשמע ולפעמים נח' }
+  { name:'קמץ', spokenName:'קָמָץ', demo:'קָ', example:'דָּג', hint:'צליל אַ' },
+  { name:'פתח', spokenName:'פַּתָּח', demo:'קַ', example:'בַּת', hint:'צליל אַ' },
+  { name:'צירה', spokenName:'צֵירֵי', demo:'קֵ', example:'עֵץ', hint:'צליל אֵ' },
+  { name:'סגול', spokenName:'סֶגּוֹל', demo:'קֶ', example:'יֶלֶד', hint:'צליל אֶ' },
+  { name:'חיריק', spokenName:'חִירִיק', demo:'קִ', example:'אִישׁ', hint:'צליל אִי' },
+  { name:'חולם', spokenName:'חוֹלָם', demo:'קֹ', example:'אוֹר', hint:'צליל אוֹ' },
+  { name:'שורוק', spokenName:'שׁוּרוּק', demo:'קוּ', example:'סוּס', hint:'צליל אוּ' },
+  { name:'קיבוץ', spokenName:'קִבּוּץ', demo:'קֻ', example:'קֻפָּה', hint:'צליל אוּ' },
+  { name:'שווא', spokenName:'שְׁוָא', demo:'קְ', example:'גְּבִינָה', hint:'לפעמים נשמע ולפעמים נח' }
 ];
+
+const niqqudSoundGroups = [
+  { id:'a', label:'קמץ או פתח', forms:'קָ  /  קַ', variants:[letter => letter+'ָ', letter => letter+'ַ'] },
+  { id:'e', label:'צירה או סגול', forms:'קֵ  /  קֶ', variants:[letter => letter+'ֵ', letter => letter+'ֶ'] },
+  { id:'i', label:'חיריק', forms:'קִ', variants:[letter => letter+'ִ'] },
+  { id:'o', label:'חולם', forms:'קֹ', variants:[letter => letter+'ֹ'] },
+  { id:'u', label:'שורוק או קיבוץ', forms:'קוּ  /  קֻ', variants:[letter => letter+'וּ', letter => letter+'ֻ'] }
+];
+
+const niqqudPracticeLetters = [...'זלמנסרש'];
 
 let niqqudTarget = null;
 let niqqudScore = 0;
 
 function openNiqqudLearning() {
   show('niqqudlearn');
-  byId('niqqudlist').innerHTML = niqqud.map((item,index) => `<button class="niqqud-card" onclick="speakNiqqud(${index})"><strong>${item.symbol}</strong>${item.spokenName}<small>${item.hint} · ${item.example}</small>🔊</button>`).join('');
+  byId('niqqudlist').innerHTML = niqqud.map((item,index) => `<button class="niqqud-card" onclick="speakNiqqud(${index})"><strong>${item.demo}</strong>${item.spokenName}<small>${item.hint} · ${item.example}</small>🔊</button>`).join('');
 }
 
 function speakNiqqud(index) {
   const item = niqqud[index];
-  say(`${item.spokenName}. ${item.example}`, .68);
+  say(`${item.example}. ${item.spokenName}`, .68);
 }
 
 function startNiqqudGame() {
@@ -28,18 +38,21 @@ function startNiqqudGame() {
 }
 
 function nextNiqqudQuestion() {
-  niqqudTarget = niqqud[Math.floor(Math.random() * niqqud.length)];
-  const options = shuffled([niqqudTarget, ...shuffled(niqqud.filter(x => x !== niqqudTarget)).slice(0,3)]);
-  byId('niqqudprompt').textContent = `הקשיבו ובחרו את הניקוד המתאים`;
+  const group = niqqudSoundGroups[Math.floor(Math.random() * niqqudSoundGroups.length)];
+  const letter = niqqudPracticeLetters[Math.floor(Math.random() * niqqudPracticeLetters.length)];
+  const makeSyllable = group.variants[Math.floor(Math.random() * group.variants.length)];
+  niqqudTarget = { group, syllable:makeSyllable(letter) };
+  byId('niqqudletter').textContent = niqqudTarget.syllable;
+  byId('niqqudprompt').textContent = 'איזה ניקוד שמעתם?';
   byId('niqqudcounter').textContent = `הצלחות: ${niqqudScore} מתוך 8`;
   byId('niqqudfeedback').textContent = '';
-  byId('niqqudoptions').innerHTML = options.map(item => `<button class="game-option niqqud-answer" onclick="checkNiqqud('${item.name}',this)">${item.symbol}<small>${item.spokenName}</small></button>`).join('');
+  byId('niqqudoptions').innerHTML = shuffled(niqqudSoundGroups).map(option => `<button class="game-option niqqud-answer" onclick="checkNiqqud('${option.id}',this)"><strong>${option.forms}</strong><small>${option.label}</small></button>`).join('');
   setTimeout(repeatNiqqud, 300);
 }
 
-function repeatNiqqud() { say(`${niqqudTarget.spokenName}. ${niqqudTarget.example}`, .68); }
-function checkNiqqud(name, button) {
-  if (name !== niqqudTarget.name) {
+function repeatNiqqud() { say(`${niqqudTarget.syllable}. ${niqqudTarget.syllable}`, .62); }
+function checkNiqqud(groupId, button) {
+  if (groupId !== niqqudTarget.group.id) {
     button.classList.add('wrong-pick'); byId('niqqudfeedback').textContent = retryText(); say(retryText());
     setTimeout(() => button.classList.remove('wrong-pick'), 700); return;
   }
