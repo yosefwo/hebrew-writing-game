@@ -1,13 +1,17 @@
-const niqqudChainRows = [
-  {
-    title: 'האות א׳',
-    items: ['אָ', 'אַ', 'אֵ', 'אֶ', 'אִ', 'אֹ', 'אוּ', 'אֻ', 'אְ']
-  },
-  {
-    title: 'האות ב׳',
-    items: ['בָּ', 'בַּ', 'בֵּ', 'בֶּ', 'בִּ', 'בֹּ', 'בּוּ', 'בֻּ', 'בְּ']
-  }
-];
+const niqqudChainRows = letters.map(letter => ({
+  title: `האות ${letter}׳`,
+  items: buildPointedLetterRow(letter)
+}));
+
+function buildPointedLetterRow(letter) {
+  const extraPoint = 'בגדכפת'.includes(letter) ? 'ּ' : letter === 'ש' ? 'ׁ' : '';
+  const withVowel = vowel => `${letter}${vowel}${extraPoint}`;
+  return [
+    withVowel('ָ'), withVowel('ַ'), withVowel('ֵ'),
+    withVowel('ֶ'), withVowel('ִ'), withVowel('ֹ'),
+    `${letter}${extraPoint}וּ`, withVowel('ֻ'), withVowel('ְ')
+  ];
+}
 
 let niqqudChain = [];
 let niqqudChainMode = false;

@@ -1,4 +1,5 @@
 const letters = [...'אבגדהוזחטיכלמנסעפצקרשת'];
+const finalLetters = [...'ךםןףץ'];
 
 const categories = {
   all: '🛒 הכול',
