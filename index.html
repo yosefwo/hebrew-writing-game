@@ -25,12 +25,10 @@
 <section id="numbergame" class="hidden"><div class="top"><button class="door" onclick="show('kindergarten')">🚪</button><h2>מצא את המספר</h2><button onclick="startNumberGame()">↻</button></div><div id="numbertarget" class="number-target"></div><p class="tip">לחצו על המספר ששמעתם</p><div id="numberanswers" class="number-answers"></div><div id="numberfeedback" class="feedback"></div></section>
 <section id="countinggame" class="hidden"><div class="top"><button class="door" onclick="show('kindergarten')">🚪</button><h2>כמה יש בתמונה?</h2><button onclick="startCountingGame()">↻</button></div><div id="countpicture" class="count-picture"></div><p id="countprompt" class="tip"></p><div id="countanswers" class="number-answers"></div><div id="countfeedback" class="feedback"></div></section>
 </main><div id="modal" class="modal hidden" onclick="closeModal()"><div class="card" onclick="event.stopPropagation()"><button class="close" onclick="closeModal()">✕</button><div id="detail"></div></div></div>
+<script src="game-data.js"></script>
+<script src="speech-feedback.js"></script>
 <script>
-const letters=[...'אבגדהוזחטיכלמנסעפצקרשת'];
-const categories={all:'🛒 הכול',fruits:'🍎 פירות',vegetables:'🥕 ירקות',dairy:'🥛 מוצרי חלב',sweets:'🍫 ממתקים',bakery:'🥖 מאפים'};
-const foods=['תפוח|🍎|fruits','בננה|🍌|fruits','תפוז|🍊|fruits','ענבים|🍇|fruits','גזר|🥕|vegetables','עגבנייה|🍅|vegetables','מלפפון|🥒|vegetables','תירס|🌽|vegetables','חלב|🥛|dairy','גבינה|🧀|dairy','יוגורט|🥣|dairy','חמאה|🧈|dairy','שוקולד|🍫|sweets','סוכרייה|🍬|sweets','עוגייה|🍪|sweets','לחם|🍞|bakery','פיתה|🫓|bakery','בייגלה|🥨|bakery'].map(x=>{const[name,emoji,category]=x.split('|');return{name,emoji,category}});
 const byId=id=>document.getElementById(id),modal=byId('modal'),detail=byId('detail');
-function say(text,rate=.78){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='he-IL';u.rate=rate;speechSynthesis.speak(u)}
 const screens=['profile','home','grade1','kindergarten','letters','foods','memory','listening','picturegame','numbergame','countinggame'];
 function show(id){screens.forEach(x=>byId(x).classList.toggle('hidden',x!==id));byId('playerbar').classList.toggle('hidden',id==='profile'||!getProfile());updateAvatar();closeModal();scrollTo(0,0)}
 function closeModal(){modal.classList.add('hidden')}
@@ -42,9 +40,7 @@ function shuffled(array){return [...array].sort(()=>Math.random()-.5)}
 let activeFood=null,missingIndex=0;
 function wordGame(index){activeFood=foods[index];missingIndex=Math.floor(Math.random()*activeFood.name.length);say(activeFood.name);renderWord(true);modal.classList.remove('hidden');setTimeout(()=>renderWord(false),1300)}
 function renderWord(preview){const chars=[...activeFood.name];const correct=chars[missingIndex];let options=shuffled([correct,...shuffled(letters.filter(l=>l!==correct)).slice(0,3)]);detail.innerHTML=`<div class="pic">${activeFood.emoji}</div><p>${preview?'זכרו את המילה':'השלימו את האות החסרה'}</p><div class="full-word">${preview?activeFood.name:''}</div><div class="word-slots">${chars.map((c,i)=>`<span id="slot${i}" class="slot ${!preview&&i===missingIndex?'missing':''}">${preview||i!==missingIndex?c:''}</span>`).join('')}</div>${preview?'':`<div class="answers">${options.map(l=>`<button class="answer" onclick="checkLetter('${l}',this)">${l}</button>`).join('')}</div>`}`}
-function retryText(){return getProfile()?.gender==='girl'?'נסי שוב':'נסה שוב'}
 function checkLetter(chosen,button){const correct=[...activeFood.name][missingIndex],slot=byId('slot'+missingIndex);if(chosen===correct){const praise=praiseText();slot.textContent=correct;slot.classList.remove('missing');button.classList.add('right-pick');applause(praise);detail.insertAdjacentHTML('beforeend','<div class="success">👏 '+praise+' 👏</div><button class="next" onclick="wordGame(foods.indexOf(activeFood))">עוד אות</button>');document.querySelectorAll('.answer').forEach(b=>b.disabled=true)}else{button.classList.add('wrong-pick');slot.textContent=chosen;slot.classList.add('wrong');say(retryText());setTimeout(()=>{button.classList.remove('wrong-pick');slot.textContent='';slot.classList.remove('wrong')},750)}}
-function applause(message=praiseText()){say(message);const ctx=new(window.AudioContext||window.webkitAudioContext)();[0,.11,.22,.34].forEach((t,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=[660,880,990,1320][i];g.gain.setValueAtTime(.08,ctx.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+t+.18);o.connect(g).connect(ctx.destination);o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+.2)})}
 drawFoods('all',byId('cats').firstElementChild);
 let opened=[],matched=0,memoryPairs=6;
 function openMemorySetup(){show('memory');byId('memorysetup').classList.remove('hidden');byId('memoryintro').classList.add('hidden');byId('memorygrid').innerHTML='';byId('memoryfeedback').textContent=''}
@@ -69,7 +65,6 @@ function addProfile(){const name=byId('playername').value.trim();if(!name||!sele
 function selectProfile(i){localStorage.setItem('hebrewGameActiveProfile',i);showHomeWithGreeting(true)}
 function renderProfiles(){const list=getProfiles();byId('savedplayers').innerHTML=list.map((p,i)=>`<button class="saved-player" onclick="selectProfile(${i})">${p.gender==='girl'?'👧':'👦'} ${p.name}</button>`).join('');byId('profiledone').classList.toggle('hidden',!list.length)}
 function greeting(profile){return (profile.gender==='girl'?'ברוכה הבאה ':'ברוך הבא ')+profile.name}
-function praiseText(){const profile=getProfile();return profile?.name?profile.name+', כל הכבוד!':'כל הכבוד!'}
 function updateAvatar(){const p=getProfile();if(!p)return;const b=byId('avatarbutton');b.className='avatar '+p.gender;b.textContent=(p.gender==='girl'?'👧 ':'👦 ')+p.name}
 function showHomeWithGreeting(speakNow){const profile=getProfile();if(!profile){openProfileManager();return}show('home');byId('welcomeline').classList.remove('hidden');byId('welcometext').textContent=greeting(profile);if(speakNow)setTimeout(()=>say(greeting(profile)),250)}
 function openProfileManager(){renderProfiles();byId('playername').value='';chooseGender('');show('profile')}
@@ -77,7 +72,7 @@ let numberTarget=1;
 function startNumberGame(){show('numbergame');nextNumber()}
 function nextNumber(){numberTarget=Math.floor(Math.random()*11);byId('numbertarget').textContent='🔊';byId('numberfeedback').textContent='';const pool=shuffled(Array.from({length:11},(_,i)=>i).filter(n=>n!==numberTarget)).slice(0,5);byId('numberanswers').innerHTML=shuffled([numberTarget,...pool]).map(n=>`<button class="number-answer" onclick="checkNumber(${n},this)">${n}</button>`).join('');setTimeout(()=>say('מצא את המספר '+numberTarget),300)}
 function checkNumber(n,b){if(n===numberTarget){const praise=praiseText();b.classList.add('right-pick');byId('numberfeedback').textContent='👏 '+praise;applause(praise);setTimeout(nextNumber,1400)}else{b.classList.add('wrong-pick');byId('numberfeedback').textContent=retryText();say(retryText());setTimeout(()=>b.classList.remove('wrong-pick'),700)}}
-const countItems=[['🐶','כלבים'],['🐱','חתולים'],['🐰','ארנבים'],['🍎','תפוחים'],['🍌','בננות'],['🍓','תותים']];let countTarget=1;
+let countTarget=1;
 function startCountingGame(){show('countinggame');nextCounting()}
 function nextCounting(){const item=countItems[Math.floor(Math.random()*countItems.length)];countTarget=1+Math.floor(Math.random()*9);byId('countpicture').innerHTML=Array.from({length:countTarget},()=>`<span>${item[0]}</span>`).join('');byId('countprompt').textContent='כמה '+item[1]+' יש בתמונה?';byId('countfeedback').textContent='';const pool=shuffled(Array.from({length:9},(_,i)=>i+1).filter(n=>n!==countTarget)).slice(0,3);byId('countanswers').innerHTML=shuffled([countTarget,...pool]).map(n=>`<button class="number-answer" onclick="checkCount(${n},this)">${n}</button>`).join('');setTimeout(()=>say('כמה '+item[1]+' יש בתמונה'),300)}
 function checkCount(n,b){if(n===countTarget){const praise=praiseText();b.classList.add('right-pick');byId('countfeedback').textContent='👏 '+praise;applause(praise);setTimeout(nextCounting,1500)}else{b.classList.add('wrong-pick');byId('countfeedback').textContent=retryText();say(retryText());setTimeout(()=>b.classList.remove('wrong-pick'),700)}}
