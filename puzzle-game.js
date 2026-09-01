@@ -3,6 +3,23 @@ const puzzleThemes = {
   kindergarten: { image:'kindergarten.webp', title:'פאזל גן', back:'kindergarten' }
 };
 
+const puzzlePictureGroups = [
+  ['ראש השנה',['rosh-hashanah-1.webp','rosh-hashanah-2.webp']],
+  ['סוכות',['sukkot-1.webp','sukkot-2.webp']],
+  ['שמחת תורה',['simchat-torah-1.webp','simchat-torah-2.webp']],
+  ['חנוכה',['hanukkah-1.webp','hanukkah-2.webp']],
+  ['ט״ו בשבט',['tu-bishvat-1.webp','tu-bishvat-2.webp']],
+  ['פורים',['purim-1.webp','purim-2.webp']],
+  ['פסח',['passover-1.webp','passover-2.webp']],
+  ['ל״ג בעומר',['lag-baomer-1.webp','lag-baomer-2.webp']],
+  ['שבועות',['shavuot-1.webp','shavuot-2.webp']],
+  ['יום העצמאות',['independence-1.webp','independence-2.webp']],
+  ['יום ירושלים',['jerusalem-day-1.webp','jerusalem-day-2.webp']],
+  ['י״ז בתמוז',['17-tammuz-1.webp','17-tammuz-2.webp']],
+  ['תשעה באב',['tisha-bav-1.webp','tisha-bav-2.webp']],
+  ['נטילת ידיים',['handwashing-girl.webp','handwashing-boy.webp']]
+].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}`)}));
+
 let puzzleTheme = puzzleThemes.kindergarten;
 let puzzleColumns = 2;
 let puzzleRows = 2;
@@ -12,14 +29,27 @@ let selectedPuzzlePiece = null;
 let draggedPuzzle = null;
 
 function startPuzzle(themeName) {
-  puzzleTheme = puzzleThemes[themeName];
+  puzzleTheme = {...puzzleThemes[themeName],image:puzzlePictureGroups[0].images[0]};
   show('puzzlegame');
   byId('puzzletitle').textContent = puzzleTheme.title;
   byId('puzzleback').onclick = () => show(puzzleTheme.back);
   byId('puzzlepreview').src = puzzleTheme.image;
+  renderPuzzlePictureChoices();
   byId('puzzlesetup').classList.remove('hidden');
   byId('puzzleplay').classList.add('hidden');
   byId('puzzlefeedback').textContent = '';
+}
+
+function renderPuzzlePictureChoices() {
+  byId('puzzlethemes').innerHTML=puzzlePictureGroups.map(group=>`<section class="puzzle-picture-group"><h4>${group.title}</h4><div>${group.images.map((image,index)=>`<button class="puzzle-picture-choice ${image===puzzleTheme.image?'selected':''}" onclick="choosePuzzleImage('${image}',this)" aria-label="${group.title}, תמונה ${index+1}"><img src="${image}" loading="lazy" alt="${group.title}, תמונה ${index+1}"></button>`).join('')}</div></section>`).join('');
+}
+
+function choosePuzzleImage(image,button) {
+  puzzleTheme.image=image;
+  byId('puzzlepreview').src=image;
+  document.querySelectorAll('.puzzle-picture-choice').forEach(choice=>choice.classList.remove('selected'));
+  button.classList.add('selected');
+  button.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 
 function beginPuzzle(pieceCount) {
