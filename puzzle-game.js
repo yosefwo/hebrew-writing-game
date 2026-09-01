@@ -45,7 +45,15 @@ function createPuzzleEdges() {
 }
 
 function renderPuzzle() {
-  const board=byId('puzzleboard'),tray=byId('puzzletray');
+  const board=byId('puzzleboard');
+  let tray=byId('puzzletray');
+  if (!tray) {
+    tray=document.createElement('div');
+    tray.id='puzzletray';
+    tray.className='puzzle-tray';
+    tray.setAttribute('aria-label','חלקי הפאזל');
+    board.insertAdjacentElement('afterend',tray);
+  }
   board.innerHTML=`<div class="puzzle-guide" style="background-image:url('${puzzleTheme.image}')"></div><div class="puzzle-slots"></div><div class="puzzle-placed"></div>`;
   const slots=board.querySelector('.puzzle-slots');
   slots.style.gridTemplateColumns=`repeat(${puzzleColumns},1fr)`;
@@ -53,13 +61,19 @@ function renderPuzzle() {
   slots.querySelectorAll('.puzzle-slot').forEach(slot=>slot.addEventListener('click',()=>tryPlacePuzzle(Number(slot.dataset.slot))));
   tray.innerHTML='';
   const image=new Image();
-  image.onload=()=>{
+  let piecesBuilt=false;
+  const buildPieces=()=>{
+    if (piecesBuilt) return;
+    piecesBuilt=true;
     const boardWidth=board.clientWidth,boardHeight=boardWidth*3/4;
     board.style.height=`${boardHeight}px`;
     const cellWidth=boardWidth/puzzleColumns,cellHeight=boardHeight/puzzleRows;
     shuffled(Array.from({length:puzzleColumns*puzzleRows},(_,i)=>i)).forEach(index=>tray.appendChild(makePuzzleCanvas(index,image,cellWidth,cellHeight,boardWidth,boardHeight)));
   };
+  image.onload=buildPieces;
+  image.onerror=()=>{byId('puzzlefeedback').textContent='לא הצלחנו לטעון את התמונה. נסו לבחור פאזל מחדש.'};
   image.src=puzzleTheme.image;
+  if (image.complete && image.naturalWidth) buildPieces();
 }
 
 function tracePuzzlePiece(ctx,w,h,tab,edges) {
