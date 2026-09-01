@@ -1,7 +1,8 @@
 const kindergartenObjects = ['🍎', '🍌', '🍓', '🐶', '🐱', '🐰', '🦋', '⭐'];
 const shapeData = [
   { id: 'circle', name: 'עיגול' }, { id: 'square', name: 'ריבוע' },
-  { id: 'triangle', name: 'משולש' }, { id: 'rectangle', name: 'מלבן' }
+  { id: 'triangle', name: 'משולש' }, { id: 'rectangle', name: 'מלבן' },
+  { id: 'pentagon', name: 'מחומש' }, { id: 'hexagon', name: 'משושה' }
 ];
 const colorData = [
   { name: 'אדום', value: '#ef5350' }, { name: 'כחול', value: '#4285d4' },
@@ -69,6 +70,34 @@ function nextOdd() {
   byId('oddfeedback').textContent = '';
   byId('oddoptions').innerHTML = items.map((icon,index) => `<button onclick="checkLearningAnswer(${index === oddTarget},this,nextOdd,'oddfeedback')">${icon}</button>`).join('');
   say('מה יוצא דופן?');
+}
+
+let compareCorrectSide = 0;
+function startCompareGame() { show('comparegame'); nextCompareQuestion(); }
+function nextCompareQuestion() {
+  const icon = kindergartenObjects[Math.floor(Math.random() * kindergartenObjects.length)];
+  let first = 1 + Math.floor(Math.random() * 7);
+  let second;
+  do second = 1 + Math.floor(Math.random() * 7); while (second === first);
+  const findMore = Math.random() < .5;
+  compareCorrectSide = findMore ? (first > second ? 0 : 1) : (first < second ? 0 : 1);
+  byId('compareprompt').textContent = findMore ? 'איפה יש יותר?' : 'איפה יש פחות?';
+  byId('comparefeedback').textContent = '';
+  byId('compareoptions').innerHTML = [first,second].map((count,index) => `<button class="compare-option" onclick="checkLearningAnswer(${index === compareCorrectSide},this,nextCompareQuestion,'comparefeedback')">${icon.repeat(count)}</button>`).join('');
+  say(findMore ? 'איפה יש יותר?' : 'איפה יש פחות?');
+}
+
+const matchingPairs = [['🐶','🦴'],['🐱','🐟'],['🐰','🥕'],['🐝','🌸'],['🐵','🍌'],['🐮','🌿']];
+let matchingAnswer = '';
+function startMatchingGame() { show('matchinggame'); nextMatchingQuestion(); }
+function nextMatchingQuestion() {
+  const pair = matchingPairs[Math.floor(Math.random() * matchingPairs.length)];
+  matchingAnswer = pair[1];
+  const options = shuffled([matchingAnswer, ...shuffled(matchingPairs.map(item => item[1]).filter(item => item !== matchingAnswer)).slice(0,2)]);
+  byId('pairtarget').textContent = pair[0];
+  byId('matchingfeedback').textContent = '';
+  byId('pairoptions').innerHTML = options.map(item => `<button class="pair-option" onclick="checkLearningAnswer('${item}'==='${matchingAnswer}',this,nextMatchingQuestion,'matchingfeedback')">${item}</button>`).join('');
+  say('מה מתאים לתמונה?');
 }
 
 function checkLearningAnswer(correct, button, next, feedbackId) {
