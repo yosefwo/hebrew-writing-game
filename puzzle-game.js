@@ -22,7 +22,7 @@ const puzzlePictureGroups = [
   ['נותנים ומשתפים',['sharing-firetruck.webp','sharing-doll.webp']],
   ['שבת',['shabbat-candles-girl.webp','shabbat-kiddush-boy.webp','shabbat-table-kids-v3.webp']],
   ['מסדרים צעצועים',['tidying-toys-kids.webp']]
-].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=10`)}));
+].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=11`)}));
 
 let puzzleTheme = puzzleThemes.kindergarten;
 let puzzleColumns = 2;
@@ -88,7 +88,7 @@ function createPuzzleEdges() {
     const radius=.82+Math.random()*.34;
     return {direction,depth,offset,radius};
   };
-  const opposite=edge=>({...edge,direction:-edge.direction});
+  const opposite=edge=>({...edge,direction:-edge.direction,offset:-edge.offset});
   for (let row=0; row<puzzleRows; row++) for (let col=0; col<puzzleColumns; col++) {
     const index=row*puzzleColumns+col;
     if(col<puzzleColumns-1){const edge=randomEdge();pieces[index].right=edge;pieces[index+1].left=opposite(edge)}
