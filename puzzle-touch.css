@@ -36,3 +36,13 @@
   #puzzlegame:not(.hidden) .puzzle-actions .speak{padding:7px 12px;font-size:14px}
   #puzzlegame:not(.hidden) #puzzlefeedback{position:fixed;right:14px;bottom:3px;z-index:20;margin:0;padding:3px 8px;background:#fffdf7dd;border-radius:10px;font-size:14px}
 }
+
+.puzzle-sizes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:14px 0 8px}
+.puzzle-sizes button{border:3px solid transparent;border-radius:17px;padding:13px 7px;font-weight:700;box-shadow:0 4px #26344b20;transition:transform .15s,box-shadow .15s}
+.puzzle-sizes button:nth-child(1){background:#ffe7a3;border-color:#e4bd51}
+.puzzle-sizes button:nth-child(2){background:#dcecff;border-color:#9fc3e8}
+.puzzle-sizes button:nth-child(3){background:#d8f1e2;border-color:#91cda9}
+.puzzle-sizes button:nth-child(4){background:#f3daf0;border-color:#d8a8d1}
+.puzzle-sizes button:nth-child(5){background:#ffdcd1;border-color:#eab0a0}
+@media(max-width:480px){.puzzle-sizes{grid-template-columns:repeat(3,1fr)}.puzzle-sizes button{padding:12px 6px}}
+@media (orientation:landscape) and (max-height:600px){#puzzlegame:not(.hidden) .puzzle-tray[data-columns='4'] .jigsaw-piece{width:48%!important}}

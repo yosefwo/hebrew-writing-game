@@ -20,8 +20,9 @@ const puzzlePictureGroups = [
   ['נטילת ידיים',['handwashing-girl.webp','handwashing-boy.webp']],
   ['קריאת שמע על המיטה',['bedtime-shema-boy.webp','bedtime-shema-girl.webp']],
   ['נותנים ומשתפים',['sharing-firetruck.webp','sharing-doll.webp']],
-  ['שבת',['shabbat-candles-girl.webp','shabbat-kiddush-boy.webp','shabbat-table-kids-v2.webp']]
-].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=8`)}));
+  ['שבת',['shabbat-candles-girl.webp','shabbat-kiddush-boy.webp','shabbat-table-kids-v3.webp']],
+  ['מסדרים צעצועים',['tidying-toys-kids.webp']]
+].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=9`)}));
 
 let puzzleTheme = puzzleThemes.kindergarten;
 let puzzleColumns = 2;
@@ -65,7 +66,8 @@ function beginPuzzle(pieceCount,button) {
 }
 
 function launchPuzzle(pieceCount) {
-  [puzzleColumns, puzzleRows] = pieceCount === 4 ? [2,2] : pieceCount === 6 ? [3,2] : [3,3];
+  const layouts={4:[2,2],6:[3,2],9:[3,3],12:[4,3],16:[4,4]};
+  [puzzleColumns,puzzleRows]=layouts[pieceCount]||layouts[4];
   puzzleEdges = createPuzzleEdges();
   placedPuzzlePieces = new Set();
   selectedPuzzlePiece = null;
@@ -183,7 +185,7 @@ function makePuzzleCanvas(index,image,cellWidth,cellHeight,boardWidth,boardHeigh
   const logicalWidth=cellWidth+tab*2,logicalHeight=cellHeight+tab*2;
   canvas.width=Math.ceil(logicalWidth*scale); canvas.height=Math.ceil(logicalHeight*scale);
   canvas.dataset.logicalWidth=logicalWidth; canvas.dataset.logicalHeight=logicalHeight;
-  canvas.style.width=puzzleColumns===2?'72%':'64%'; canvas.style.height='auto';
+  canvas.style.width=puzzleColumns===2?'72%':puzzleColumns===3?'64%':'56%'; canvas.style.height='auto';
   canvas.className='jigsaw-piece'; canvas.dataset.piece=index; canvas.dataset.tab=tab; canvas.tabIndex=0;
   canvas.setAttribute('role','button'); canvas.setAttribute('aria-label',`חלק ${index+1}. גררו למקום המתאים`);
   const ctx=canvas.getContext('2d'); ctx.scale(scale,scale);
