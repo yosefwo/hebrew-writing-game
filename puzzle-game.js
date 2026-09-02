@@ -20,8 +20,8 @@ const puzzlePictureGroups = [
   ['נטילת ידיים',['handwashing-girl.webp','handwashing-boy.webp']],
   ['קריאת שמע על המיטה',['bedtime-shema-boy.webp','bedtime-shema-girl.webp']],
   ['נותנים ומשתפים',['sharing-firetruck.webp','sharing-doll.webp']],
-  ['שבת',['shabbat-candles-girl.webp','shabbat-kiddush-boy.webp']]
-].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=6`)}));
+  ['שבת',['shabbat-candles-girl.webp','shabbat-kiddush-boy.webp','shabbat-table-kids.webp']]
+].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=7`)}));
 
 let puzzleTheme = puzzleThemes.kindergarten;
 let puzzleColumns = 2;
@@ -55,10 +55,16 @@ function choosePuzzleImage(image,button) {
   byId('puzzlepreview').src=image;
   document.querySelectorAll('.puzzle-picture-choice').forEach(choice=>choice.classList.remove('selected'));
   button.classList.add('selected');
-  button.scrollIntoView({block:'nearest',behavior:'smooth'});
+  const sizes=document.querySelector('#puzzlesetup .puzzle-sizes');
+  setTimeout(()=>sizes?.scrollIntoView({block:'end',behavior:'smooth'}),80);
 }
 
-function beginPuzzle(pieceCount) {
+function beginPuzzle(pieceCount,button) {
+  document.querySelectorAll('.puzzle-sizes button').forEach(choice=>choice.classList.toggle('selected',choice===button));
+  setTimeout(()=>launchPuzzle(pieceCount),180);
+}
+
+function launchPuzzle(pieceCount) {
   [puzzleColumns, puzzleRows] = pieceCount === 4 ? [2,2] : pieceCount === 6 ? [3,2] : [3,3];
   puzzleEdges = createPuzzleEdges();
   placedPuzzlePieces = new Set();
@@ -91,13 +97,14 @@ function renderPuzzle() {
     tray.setAttribute('aria-label','חלקי הפאזל');
     board.insertAdjacentElement('afterend',tray);
   }
-  board.innerHTML=`<div class="puzzle-guide" style="background-image:url('${puzzleTheme.image}')"></div><div class="puzzle-slots"></div><div class="puzzle-placed"></div>`;
+  board.innerHTML=`<div class="puzzle-guide" style="background-image:url('${puzzleTheme.image}')"></div><div class="puzzle-slot-shapes"></div><div class="puzzle-slots"></div><div class="puzzle-placed"></div>`;
   const slots=board.querySelector('.puzzle-slots');
   slots.style.gridTemplateColumns=`repeat(${puzzleColumns},1fr)`;
   slots.innerHTML=Array.from({length:puzzleColumns*puzzleRows},(_,i)=>`<button class="puzzle-slot" data-slot="${i}" aria-label="מקום לחלק ${i+1}"></button>`).join('');
   slots.querySelectorAll('.puzzle-slot').forEach(slot=>slot.addEventListener('click',()=>tryPlacePuzzle(Number(slot.dataset.slot))));
   tray.innerHTML='';
   tray.dataset.columns=puzzleColumns;
+  tray.style.gridTemplateColumns=`repeat(${puzzleColumns},minmax(0,1fr))`;
   const image=new Image();
   let piecesBuilt=false;
   const buildPieces=()=>{
@@ -107,6 +114,8 @@ function renderPuzzle() {
     lastPuzzleBoardWidth=boardWidth;
     board.style.height=`${boardHeight}px`;
     const cellWidth=boardWidth/puzzleColumns,cellHeight=boardHeight/puzzleRows;
+    const shapes=board.querySelector('.puzzle-slot-shapes');
+    Array.from({length:puzzleColumns*puzzleRows},(_,index)=>index).forEach(index=>shapes.appendChild(makePuzzleSlotCanvas(index,cellWidth,cellHeight)));
     shuffled(Array.from({length:puzzleColumns*puzzleRows},(_,i)=>i)).forEach(index=>{
       const canvas=makePuzzleCanvas(index,image,cellWidth,cellHeight,boardWidth,boardHeight);
       if (placedPuzzlePieces.has(index)) positionPlacedPuzzle(canvas,index,board);
@@ -155,19 +164,34 @@ function puzzleVertical(ctx,x,y,length,tab,edge,outward) {
   ctx.lineTo(x,y+length);
 }
 
+function makePuzzleSlotCanvas(index,cellWidth,cellHeight) {
+  const tab=Math.min(cellWidth,cellHeight)*.27,canvas=document.createElement('canvas'),scale=Math.min(window.devicePixelRatio||1,2);
+  const logicalWidth=cellWidth+tab*2,logicalHeight=cellHeight+tab*2,col=index%puzzleColumns,row=Math.floor(index/puzzleColumns);
+  canvas.width=Math.ceil(logicalWidth*scale); canvas.height=Math.ceil(logicalHeight*scale);
+  canvas.style.width=`${logicalWidth}px`; canvas.style.height=`${logicalHeight}px`;
+  canvas.style.left=`${col*cellWidth-tab}px`; canvas.style.top=`${row*cellHeight-tab}px`;
+  const ctx=canvas.getContext('2d'); ctx.scale(scale,scale);
+  tracePuzzlePiece(ctx,cellWidth,cellHeight,tab,puzzleEdges[index]);
+  ctx.fillStyle='rgba(255,255,255,.12)'; ctx.fill();
+  tracePuzzlePiece(ctx,cellWidth,cellHeight,tab,puzzleEdges[index]);
+  ctx.lineWidth=2.5; ctx.strokeStyle='rgba(38,52,75,.62)'; ctx.stroke();
+  return canvas;
+}
+
 function makePuzzleCanvas(index,image,cellWidth,cellHeight,boardWidth,boardHeight) {
-  const tab=Math.min(cellWidth,cellHeight)*.24,canvas=document.createElement('canvas'),scale=Math.min(window.devicePixelRatio||1,2);
+  const tab=Math.min(cellWidth,cellHeight)*.27,canvas=document.createElement('canvas'),scale=Math.min(window.devicePixelRatio||1,2);
   const logicalWidth=cellWidth+tab*2,logicalHeight=cellHeight+tab*2;
   canvas.width=Math.ceil(logicalWidth*scale); canvas.height=Math.ceil(logicalHeight*scale);
   canvas.dataset.logicalWidth=logicalWidth; canvas.dataset.logicalHeight=logicalHeight;
-  canvas.style.width=puzzleColumns===2?'46%':'31%'; canvas.style.height='auto';
+  canvas.style.width=puzzleColumns===2?'72%':'64%'; canvas.style.height='auto';
   canvas.className='jigsaw-piece'; canvas.dataset.piece=index; canvas.dataset.tab=tab; canvas.tabIndex=0;
   canvas.setAttribute('role','button'); canvas.setAttribute('aria-label',`חלק ${index+1}. גררו למקום המתאים`);
   const ctx=canvas.getContext('2d'); ctx.scale(scale,scale);
   tracePuzzlePiece(ctx,cellWidth,cellHeight,tab,puzzleEdges[index]); ctx.save(); ctx.clip();
   const col=index%puzzleColumns,row=Math.floor(index/puzzleColumns);
   ctx.drawImage(image,tab-col*cellWidth,tab-row*cellHeight,boardWidth,boardHeight); ctx.restore();
-  tracePuzzlePiece(ctx,cellWidth,cellHeight,tab,puzzleEdges[index]); ctx.lineWidth=3; ctx.strokeStyle='#26344b'; ctx.stroke();
+  tracePuzzlePiece(ctx,cellWidth,cellHeight,tab,puzzleEdges[index]); ctx.lineWidth=5; ctx.strokeStyle='#fff'; ctx.stroke();
+  tracePuzzlePiece(ctx,cellWidth,cellHeight,tab,puzzleEdges[index]); ctx.lineWidth=2.5; ctx.strokeStyle='#26344b'; ctx.stroke();
   canvas.addEventListener('pointerdown',startPuzzleDrag);
   canvas.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')selectPuzzlePiece(index,canvas)});
   return canvas;
@@ -179,6 +203,7 @@ function startPuzzleDrag(event) {
   const rect=source.getBoundingClientRect(),ghost=source.cloneNode(true),ghostContext=ghost.getContext('2d');
   ghostContext.drawImage(source,0,0);
   ghost.className='jigsaw-piece puzzle-dragging'; ghost.style.width=`${rect.width}px`; ghost.style.height=`${rect.height}px`; document.body.appendChild(ghost);
+  source.classList.add('drag-source');
   draggedPuzzle={source,ghost,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,offsetX:event.clientX-rect.left,offsetY:event.clientY-rect.top,moved:false};
   movePuzzleGhost(event.clientX,event.clientY);
   source.addEventListener('pointermove',movePuzzleDrag); source.addEventListener('pointerup',finishPuzzleDrag,{once:true}); source.addEventListener('pointercancel',cancelPuzzleDrag,{once:true});
@@ -194,19 +219,33 @@ function movePuzzleGhost(x,y){draggedPuzzle.ghost.style.left=`${x-draggedPuzzle.
 
 function finishPuzzleDrag(event) {
   if(!draggedPuzzle||event.pointerId!==draggedPuzzle.pointerId)return;
-  const drag=draggedPuzzle; drag.source.removeEventListener('pointermove',movePuzzleDrag); drag.ghost.remove(); draggedPuzzle=null;
-  if(!drag.moved){selectPuzzlePiece(Number(drag.source.dataset.piece),drag.source);return}
+  const drag=draggedPuzzle; drag.source.removeEventListener('pointermove',movePuzzleDrag); draggedPuzzle=null;
+  if(!drag.moved){drag.ghost.remove();drag.source.classList.remove('drag-source');selectPuzzlePiece(Number(drag.source.dataset.piece),drag.source);return}
   const target=document.elementFromPoint(event.clientX,event.clientY)?.closest('.puzzle-slot');
-  if(!target||!placePuzzlePiece(Number(drag.source.dataset.piece),Number(target.dataset.slot),drag.source))drag.source.animate([{transform:'translateX(0)'},{transform:'translateX(-9px)'},{transform:'translateX(9px)'},{transform:'translateX(0)'}],{duration:260});
+  const piece=Number(drag.source.dataset.piece),slot=target?Number(target.dataset.slot):-1;
+  if(target&&piece===slot){drag.ghost.remove();drag.source.classList.remove('drag-source');placePuzzlePiece(piece,slot,drag.source);return}
+  selectedPuzzlePiece=null;
+  document.querySelectorAll('.jigsaw-piece.selected').forEach(item=>item.classList.remove('selected'));
+  say(retryText());
+  returnPuzzlePiece(drag);
 }
 
-function cancelPuzzleDrag(){if(!draggedPuzzle)return;draggedPuzzle.source.removeEventListener('pointermove',movePuzzleDrag);draggedPuzzle.ghost.remove();draggedPuzzle=null}
+function returnPuzzlePiece(drag) {
+  const rect=drag.source.getBoundingClientRect();
+  const animation=drag.ghost.animate([
+    {left:drag.ghost.style.left,top:drag.ghost.style.top,transform:'scale(1.05)'},
+    {left:`${rect.left}px`,top:`${rect.top}px`,transform:'scale(1)'}
+  ],{duration:340,easing:'cubic-bezier(.2,.8,.2,1)'});
+  animation.onfinish=()=>{drag.ghost.remove();drag.source.classList.remove('drag-source')};
+}
+
+function cancelPuzzleDrag(){if(!draggedPuzzle)return;draggedPuzzle.source.removeEventListener('pointermove',movePuzzleDrag);draggedPuzzle.source.classList.remove('drag-source');draggedPuzzle.ghost.remove();draggedPuzzle=null}
 
 function selectPuzzlePiece(index,canvas){document.querySelectorAll('.jigsaw-piece.selected').forEach(piece=>piece.classList.remove('selected'));selectedPuzzlePiece=selectedPuzzlePiece===index?null:index;if(selectedPuzzlePiece!==null)canvas.classList.add('selected')}
 function tryPlacePuzzle(slot){if(selectedPuzzlePiece===null)return;const source=byId('puzzletray').querySelector(`[data-piece="${selectedPuzzlePiece}"]`);placePuzzlePiece(selectedPuzzlePiece,slot,source)}
 
 function placePuzzlePiece(piece,slot,canvas) {
-  if(piece!==slot||!canvas){say(retryText());return false}
+  if(piece!==slot||!canvas){selectedPuzzlePiece=null;document.querySelectorAll('.jigsaw-piece.selected').forEach(item=>item.classList.remove('selected'));say(retryText());return false}
   const board=byId('puzzleboard');
   positionPlacedPuzzle(canvas,piece,board); placedPuzzlePieces.add(piece); selectedPuzzlePiece=null;
   const praise=praiseText(); byId('puzzlefeedback').textContent=`👏 ${praise}`; say(praise);
