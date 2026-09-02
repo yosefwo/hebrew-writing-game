@@ -17,7 +17,8 @@ const puzzlePictureGroups = [
   ['יום ירושלים',['jerusalem-day-1.webp','jerusalem-day-2.webp']],
   ['י״ז בתמוז',['17-tammuz-1.webp','17-tammuz-2.webp']],
   ['תשעה באב',['tisha-bav-1.webp','tisha-bav-2.webp']],
-  ['נטילת ידיים',['handwashing-girl.webp','handwashing-boy.webp']]
+  ['נטילת ידיים',['handwashing-girl.webp','handwashing-boy.webp']],
+  ['קריאת שמע על המיטה',['bedtime-shema-boy.webp','bedtime-shema-girl.webp']]
 ].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}`)}));
 
 let puzzleTheme = puzzleThemes.kindergarten;
