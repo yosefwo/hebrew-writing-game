@@ -22,7 +22,7 @@ const puzzlePictureGroups = [
   ['נותנים ומשתפים',['sharing-firetruck.webp','sharing-doll.webp']],
   ['שבת',['shabbat-candles-girl.webp','shabbat-kiddush-boy.webp','shabbat-table-kids-v3.webp']],
   ['מסדרים צעצועים',['tidying-toys-kids.webp']]
-].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=9`)}));
+].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=10`)}));
 
 let puzzleTheme = puzzleThemes.kindergarten;
 let puzzleColumns = 2;
@@ -81,10 +81,18 @@ function launchPuzzle(pieceCount) {
 
 function createPuzzleEdges() {
   const pieces = Array.from({length:puzzleColumns*puzzleRows},()=>({top:0,right:0,bottom:0,left:0}));
+  const randomEdge=()=>{
+    const direction=Math.random()<.5?-1:1;
+    const depth=.78+Math.random()*.38;
+    const offset=-.075+Math.random()*.15;
+    const radius=.82+Math.random()*.34;
+    return {direction,depth,offset,radius};
+  };
+  const opposite=edge=>({...edge,direction:-edge.direction});
   for (let row=0; row<puzzleRows; row++) for (let col=0; col<puzzleColumns; col++) {
-    const index = row*puzzleColumns+col;
-    if (col<puzzleColumns-1) { const edge=Math.random()<.5?-1:1; pieces[index].right=edge; pieces[index+1].left=-edge; }
-    if (row<puzzleRows-1) { const edge=Math.random()<.5?-1:1; pieces[index].bottom=edge; pieces[index+puzzleColumns].top=-edge; }
+    const index=row*puzzleColumns+col;
+    if(col<puzzleColumns-1){const edge=randomEdge();pieces[index].right=edge;pieces[index+1].left=opposite(edge)}
+    if(row<puzzleRows-1){const edge=randomEdge();pieces[index].bottom=edge;pieces[index+puzzleColumns].top=opposite(edge)}
   }
   return pieces;
 }
@@ -142,27 +150,27 @@ function tracePuzzlePiece(ctx,w,h,tab,edges) {
 
 function puzzleHorizontal(ctx,x,y,length,tab,edge,outward) {
   const direction=Math.sign(length),size=Math.abs(length);
-  ctx.lineTo(x+direction*size*.31,y);
-  if(edge){
-    const peak=y+outward*edge*tab;
-    ctx.lineTo(x+direction*size*.39,y);
-    ctx.bezierCurveTo(x+direction*size*.43,y,x+direction*size*.39,peak,x+direction*size*.5,peak);
-    ctx.bezierCurveTo(x+direction*size*.61,peak,x+direction*size*.57,y,x+direction*size*.61,y);
-    ctx.lineTo(x+direction*size*.69,y);
-  }
+  if(!edge){ctx.lineTo(x+length,y);return}
+  const center=.5+edge.offset,start=center-.13*edge.radius,end=center+.13*edge.radius;
+  const neck=.065*edge.radius,peak=y+outward*edge.direction*tab*edge.depth;
+  ctx.lineTo(x+direction*size*start,y);
+  ctx.bezierCurveTo(x+direction*size*(center-neck),y,x+direction*size*(center-neck),y+(peak-y)*.28,x+direction*size*(center-neck),y+(peak-y)*.38);
+  ctx.bezierCurveTo(x+direction*size*(center-.15*edge.radius),y+(peak-y)*.55,x+direction*size*(center-.13*edge.radius),peak,x+direction*size*center,peak);
+  ctx.bezierCurveTo(x+direction*size*(center+.13*edge.radius),peak,x+direction*size*(center+.15*edge.radius),y+(peak-y)*.55,x+direction*size*(center+neck),y+(peak-y)*.38);
+  ctx.bezierCurveTo(x+direction*size*(center+neck),y+(peak-y)*.28,x+direction*size*(center+neck),y,x+direction*size*end,y);
   ctx.lineTo(x+length,y);
 }
 
 function puzzleVertical(ctx,x,y,length,tab,edge,outward) {
   const direction=Math.sign(length),size=Math.abs(length);
-  ctx.lineTo(x,y+direction*size*.31);
-  if(edge){
-    const peak=x+outward*edge*tab;
-    ctx.lineTo(x,y+direction*size*.39);
-    ctx.bezierCurveTo(x,y+direction*size*.43,peak,y+direction*size*.39,peak,y+direction*size*.5);
-    ctx.bezierCurveTo(peak,y+direction*size*.61,x,y+direction*size*.57,x,y+direction*size*.61);
-    ctx.lineTo(x,y+direction*size*.69);
-  }
+  if(!edge){ctx.lineTo(x,y+length);return}
+  const center=.5+edge.offset,start=center-.13*edge.radius,end=center+.13*edge.radius;
+  const neck=.065*edge.radius,peak=x+outward*edge.direction*tab*edge.depth;
+  ctx.lineTo(x,y+direction*size*start);
+  ctx.bezierCurveTo(x,y+direction*size*(center-neck),x+(peak-x)*.28,y+direction*size*(center-neck),x+(peak-x)*.38,y+direction*size*(center-neck));
+  ctx.bezierCurveTo(x+(peak-x)*.55,y+direction*size*(center-.15*edge.radius),peak,y+direction*size*(center-.13*edge.radius),peak,y+direction*size*center);
+  ctx.bezierCurveTo(peak,y+direction*size*(center+.13*edge.radius),x+(peak-x)*.55,y+direction*size*(center+.15*edge.radius),x+(peak-x)*.38,y+direction*size*(center+neck));
+  ctx.bezierCurveTo(x+(peak-x)*.28,y+direction*size*(center+neck),x,y+direction*size*(center+neck),x,y+direction*size*end);
   ctx.lineTo(x,y+length);
 }
 
