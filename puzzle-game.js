@@ -22,7 +22,7 @@ const puzzlePictureGroups = [
   ['נותנים ומשתפים',['sharing-firetruck.webp','sharing-doll.webp']],
   ['שבת',['shabbat-candles-girl.webp','shabbat-kiddush-boy.webp','shabbat-table-kids-v3.webp']],
   ['מסדרים צעצועים',['tidying-toys-kids.webp']]
-].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=12`)}));
+].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=13`)}));
 
 let puzzleTheme = puzzleThemes.kindergarten;
 let puzzleColumns = 2;
@@ -120,9 +120,8 @@ function renderPuzzle() {
   const buildPieces=()=>{
     if (piecesBuilt) return;
     piecesBuilt=true;
-    const boardWidth=board.clientWidth,boardHeight=boardWidth*3/4;
+    const boardWidth=board.clientWidth,boardHeight=board.clientHeight;
     lastPuzzleBoardWidth=boardWidth;
-    board.style.height=`${boardHeight}px`;
     const cellWidth=boardWidth/puzzleColumns,cellHeight=boardHeight/puzzleRows;
     const shapes=board.querySelector('.puzzle-slot-shapes');
     Array.from({length:puzzleColumns*puzzleRows},(_,index)=>index).forEach(index=>shapes.appendChild(makePuzzleSlotCanvas(index,cellWidth,cellHeight)));
@@ -184,7 +183,7 @@ function makePuzzleSlotCanvas(index,cellWidth,cellHeight) {
   tracePuzzlePiece(ctx,cellWidth,cellHeight,tab,puzzleEdges[index]);
   ctx.fillStyle='rgba(255,255,255,.12)'; ctx.fill();
   tracePuzzlePiece(ctx,cellWidth,cellHeight,tab,puzzleEdges[index]);
-  ctx.lineWidth=1.75; ctx.strokeStyle='rgba(38,52,75,.5)'; ctx.stroke();
+  ctx.lineWidth=2.25; ctx.strokeStyle='rgba(38,52,75,.62)'; ctx.stroke();
   return canvas;
 }
 
