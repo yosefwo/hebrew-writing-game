@@ -20,8 +20,8 @@ const puzzlePictureGroups = [
   ['נטילת ידיים',['handwashing-girl.webp','handwashing-boy.webp']],
   ['קריאת שמע על המיטה',['bedtime-shema-boy.webp','bedtime-shema-girl.webp']],
   ['נותנים ומשתפים',['sharing-firetruck.webp','sharing-doll.webp']],
-  ['שבת',['shabbat-candles-girl.webp','shabbat-kiddush-boy.webp','shabbat-table-kids.webp']]
-].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=7`)}));
+  ['שבת',['shabbat-candles-girl.webp','shabbat-kiddush-boy.webp','shabbat-table-kids-v2.webp']]
+].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=8`)}));
 
 let puzzleTheme = puzzleThemes.kindergarten;
 let puzzleColumns = 2;
