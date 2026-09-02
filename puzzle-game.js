@@ -27,12 +27,15 @@ let puzzleEdges = [];
 let placedPuzzlePieces = new Set();
 let selectedPuzzlePiece = null;
 let draggedPuzzle = null;
+let lastPuzzleBoardWidth = 0;
+let puzzleResizeTimer = null;
 
 function startPuzzle(themeName) {
+  document.body.classList.remove('puzzle-playing');
   puzzleTheme = {...puzzleThemes[themeName],image:puzzlePictureGroups[0].images[0]};
   show('puzzlegame');
   byId('puzzletitle').textContent = puzzleTheme.title;
-  byId('puzzleback').onclick = () => show(puzzleTheme.back);
+  byId('puzzleback').onclick = () => { document.body.classList.remove('puzzle-playing'); show(puzzleTheme.back); };
   byId('puzzlepreview').src = puzzleTheme.image;
   renderPuzzlePictureChoices();
   byId('puzzlesetup').classList.remove('hidden');
@@ -60,6 +63,7 @@ function beginPuzzle(pieceCount) {
   byId('puzzleboard').classList.remove('solved');
   byId('puzzlesetup').classList.add('hidden');
   byId('puzzleplay').classList.remove('hidden');
+  document.body.classList.add('puzzle-playing');
   byId('puzzlefeedback').textContent = 'גררו כל חלק אל המקום המתאים בתמונה';
   requestAnimationFrame(renderPuzzle);
 }
@@ -90,15 +94,21 @@ function renderPuzzle() {
   slots.innerHTML=Array.from({length:puzzleColumns*puzzleRows},(_,i)=>`<button class="puzzle-slot" data-slot="${i}" aria-label="מקום לחלק ${i+1}"></button>`).join('');
   slots.querySelectorAll('.puzzle-slot').forEach(slot=>slot.addEventListener('click',()=>tryPlacePuzzle(Number(slot.dataset.slot))));
   tray.innerHTML='';
+  tray.dataset.columns=puzzleColumns;
   const image=new Image();
   let piecesBuilt=false;
   const buildPieces=()=>{
     if (piecesBuilt) return;
     piecesBuilt=true;
     const boardWidth=board.clientWidth,boardHeight=boardWidth*3/4;
+    lastPuzzleBoardWidth=boardWidth;
     board.style.height=`${boardHeight}px`;
     const cellWidth=boardWidth/puzzleColumns,cellHeight=boardHeight/puzzleRows;
-    shuffled(Array.from({length:puzzleColumns*puzzleRows},(_,i)=>i)).forEach(index=>tray.appendChild(makePuzzleCanvas(index,image,cellWidth,cellHeight,boardWidth,boardHeight)));
+    shuffled(Array.from({length:puzzleColumns*puzzleRows},(_,i)=>i)).forEach(index=>{
+      const canvas=makePuzzleCanvas(index,image,cellWidth,cellHeight,boardWidth,boardHeight);
+      if (placedPuzzlePieces.has(index)) positionPlacedPuzzle(canvas,index,board);
+      else tray.appendChild(canvas);
+    });
   };
   image.onload=buildPieces;
   image.onerror=()=>{byId('puzzlefeedback').textContent='לא הצלחנו לטעון את התמונה. נסו לבחור פאזל מחדש.'};
@@ -180,11 +190,31 @@ function tryPlacePuzzle(slot){if(selectedPuzzlePiece===null)return;const source=
 
 function placePuzzlePiece(piece,slot,canvas) {
   if(piece!==slot||!canvas){say(retryText());return false}
-  const board=byId('puzzleboard'),cellWidth=board.clientWidth/puzzleColumns,cellHeight=board.clientHeight/puzzleRows,tab=Number(canvas.dataset.tab);
-  const col=piece%puzzleColumns,row=Math.floor(piece/puzzleColumns);
-  canvas.className='jigsaw-piece placed'; canvas.style.width=`${canvas.dataset.logicalWidth}px`; canvas.style.height=`${canvas.dataset.logicalHeight}px`; canvas.style.left=`${col*cellWidth-tab}px`; canvas.style.top=`${row*cellHeight-tab}px`; canvas.tabIndex=-1;
-  board.querySelector('.puzzle-placed').appendChild(canvas); placedPuzzlePieces.add(piece); selectedPuzzlePiece=null;
+  const board=byId('puzzleboard');
+  positionPlacedPuzzle(canvas,piece,board); placedPuzzlePieces.add(piece); selectedPuzzlePiece=null;
   const praise=praiseText(); byId('puzzlefeedback').textContent=`👏 ${praise}`; say(praise);
   if(placedPuzzlePieces.size===puzzleColumns*puzzleRows){const message=`${praiseText()} השלמת את הפאזל!`;byId('puzzlefeedback').textContent=`🧩 ${message}`;board.classList.add('solved');applause(message)}
   return true;
 }
+
+function positionPlacedPuzzle(canvas,piece,board) {
+  const cellWidth=board.clientWidth/puzzleColumns,cellHeight=board.clientHeight/puzzleRows,tab=Number(canvas.dataset.tab);
+  const col=piece%puzzleColumns,row=Math.floor(piece/puzzleColumns);
+  canvas.className='jigsaw-piece placed';
+  canvas.style.width=`${canvas.dataset.logicalWidth}px`; canvas.style.height=`${canvas.dataset.logicalHeight}px`;
+  canvas.style.left=`${col*cellWidth-tab}px`; canvas.style.top=`${row*cellHeight-tab}px`; canvas.tabIndex=-1;
+  board.querySelector('.puzzle-placed').appendChild(canvas);
+}
+
+window.addEventListener('resize',()=>{
+  clearTimeout(puzzleResizeTimer);
+  puzzleResizeTimer=setTimeout(()=>{
+    const play=byId('puzzleplay'),board=byId('puzzleboard');
+    if (!play || play.classList.contains('hidden') || !board) return;
+    if (Math.abs(board.clientWidth-lastPuzzleBoardWidth)>16) renderPuzzle();
+  },180);
+});
+
+window.addEventListener('popstate',()=>setTimeout(()=>{
+  if (byId('puzzlegame')?.classList.contains('hidden')) document.body.classList.remove('puzzle-playing');
+},0));

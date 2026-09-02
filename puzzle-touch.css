@@ -17,3 +17,18 @@
 .puzzle-picture-choice img{display:block;width:100%;height:100%;object-fit:cover}
 .puzzle-picture-choice.selected{border-color:#ffb300;box-shadow:0 0 0 3px #fff inset}
 @media(max-width:480px){.puzzle-tray{gap:0;padding:8px 0}}
+
+@media (orientation:landscape) and (max-height:600px){
+  body.puzzle-playing{overflow:hidden}
+  body.puzzle-playing main{height:100dvh;min-height:0;max-width:none;padding:8px 14px;overflow:hidden}
+  body.puzzle-playing #playerbar{display:none}
+  #puzzlegame:not(.hidden) .top{height:58px;margin:-8px -14px 6px;padding:5px 14px}
+  #puzzlegame:not(.hidden) #puzzleplay{direction:ltr;display:grid;grid-template-columns:minmax(0,55%) minmax(0,45%);grid-template-rows:minmax(0,1fr) auto;grid-template-areas:'board tray' 'actions tray';gap:6px 10px;height:calc(100dvh - 64px);align-items:center}
+  #puzzlegame:not(.hidden) .puzzle-board{grid-area:board;width:min(100%,calc((100dvh - 116px)*4/3));max-height:calc(100dvh - 116px);margin:auto}
+  #puzzlegame:not(.hidden) .puzzle-tray{grid-area:tray;width:100%;height:calc(100dvh - 78px);min-height:0;margin:0;padding:4px 1px;gap:0;align-content:center;overflow:hidden}
+  #puzzlegame:not(.hidden) .puzzle-tray[data-columns='2'] .jigsaw-piece{width:42%!important}
+  #puzzlegame:not(.hidden) .puzzle-tray[data-columns='3'] .jigsaw-piece{width:28%!important}
+  #puzzlegame:not(.hidden) .puzzle-actions{grid-area:actions;margin:0;direction:rtl}
+  #puzzlegame:not(.hidden) .puzzle-actions .speak{padding:7px 12px;font-size:14px}
+  #puzzlegame:not(.hidden) #puzzlefeedback{position:fixed;right:14px;bottom:3px;z-index:20;margin:0;padding:3px 8px;background:#fffdf7dd;border-radius:10px;font-size:14px}
+}
