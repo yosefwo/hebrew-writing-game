@@ -18,8 +18,10 @@ const puzzlePictureGroups = [
   ['י״ז בתמוז',['17-tammuz-1.webp','17-tammuz-2.webp']],
   ['תשעה באב',['tisha-bav-1.webp','tisha-bav-2.webp']],
   ['נטילת ידיים',['handwashing-girl.webp','handwashing-boy.webp']],
-  ['קריאת שמע על המיטה',['bedtime-shema-boy.webp','bedtime-shema-girl.webp']]
-].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=5`)}));
+  ['קריאת שמע על המיטה',['bedtime-shema-boy.webp','bedtime-shema-girl.webp']],
+  ['נותנים ומשתפים',['sharing-firetruck.webp','sharing-doll.webp']],
+  ['שבת',['shabbat-candles-girl.webp','shabbat-kiddush-boy.webp']]
+].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=6`)}));
 
 let puzzleTheme = puzzleThemes.kindergarten;
 let puzzleColumns = 2;
@@ -128,19 +130,33 @@ function tracePuzzlePiece(ctx,w,h,tab,edges) {
 }
 
 function puzzleHorizontal(ctx,x,y,length,tab,edge,outward) {
-  ctx.lineTo(x+length*.34,y);
-  if(edge){const peak=y+outward*edge*tab;ctx.bezierCurveTo(x+length*.38,y,x+length*.37,peak,x+length*.5,peak);ctx.bezierCurveTo(x+length*.63,peak,x+length*.62,y,x+length*.66,y)}
+  const direction=Math.sign(length),size=Math.abs(length);
+  ctx.lineTo(x+direction*size*.31,y);
+  if(edge){
+    const peak=y+outward*edge*tab;
+    ctx.lineTo(x+direction*size*.39,y);
+    ctx.bezierCurveTo(x+direction*size*.43,y,x+direction*size*.39,peak,x+direction*size*.5,peak);
+    ctx.bezierCurveTo(x+direction*size*.61,peak,x+direction*size*.57,y,x+direction*size*.61,y);
+    ctx.lineTo(x+direction*size*.69,y);
+  }
   ctx.lineTo(x+length,y);
 }
 
 function puzzleVertical(ctx,x,y,length,tab,edge,outward) {
-  ctx.lineTo(x,y+length*.34);
-  if(edge){const peak=x+outward*edge*tab;ctx.bezierCurveTo(x,y+length*.38,peak,y+length*.37,peak,y+length*.5);ctx.bezierCurveTo(peak,y+length*.63,x,y+length*.62,x,y+length*.66)}
+  const direction=Math.sign(length),size=Math.abs(length);
+  ctx.lineTo(x,y+direction*size*.31);
+  if(edge){
+    const peak=x+outward*edge*tab;
+    ctx.lineTo(x,y+direction*size*.39);
+    ctx.bezierCurveTo(x,y+direction*size*.43,peak,y+direction*size*.39,peak,y+direction*size*.5);
+    ctx.bezierCurveTo(peak,y+direction*size*.61,x,y+direction*size*.57,x,y+direction*size*.61);
+    ctx.lineTo(x,y+direction*size*.69);
+  }
   ctx.lineTo(x,y+length);
 }
 
 function makePuzzleCanvas(index,image,cellWidth,cellHeight,boardWidth,boardHeight) {
-  const tab=Math.min(cellWidth,cellHeight)*.18,canvas=document.createElement('canvas'),scale=Math.min(window.devicePixelRatio||1,2);
+  const tab=Math.min(cellWidth,cellHeight)*.24,canvas=document.createElement('canvas'),scale=Math.min(window.devicePixelRatio||1,2);
   const logicalWidth=cellWidth+tab*2,logicalHeight=cellHeight+tab*2;
   canvas.width=Math.ceil(logicalWidth*scale); canvas.height=Math.ceil(logicalHeight*scale);
   canvas.dataset.logicalWidth=logicalWidth; canvas.dataset.logicalHeight=logicalHeight;
