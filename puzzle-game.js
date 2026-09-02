@@ -19,7 +19,7 @@ const puzzlePictureGroups = [
   ['תשעה באב',['tisha-bav-1.webp','tisha-bav-2.webp']],
   ['נטילת ידיים',['handwashing-girl.webp','handwashing-boy.webp']],
   ['קריאת שמע על המיטה',['bedtime-shema-boy.webp','bedtime-shema-girl.webp']]
-].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}`)}));
+].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=5`)}));
 
 let puzzleTheme = puzzleThemes.kindergarten;
 let puzzleColumns = 2;
