@@ -22,7 +22,7 @@ const puzzlePictureGroups = [
   ['נותנים ומשתפים',['sharing-firetruck.webp','sharing-doll.webp']],
   ['שבת',['shabbat-candles-girl.webp','shabbat-kiddush-boy.webp','shabbat-table-kids-v3.webp']],
   ['מסדרים צעצועים',['tidying-toys-kids.webp']]
-].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=13`)}));
+].map(([title,files])=>({title,images:files.map(file=>`assets/puzzles/${file}?v=14`)}));
 
 let puzzleTheme = puzzleThemes.kindergarten;
 let puzzleColumns = 2;
@@ -85,7 +85,7 @@ function createPuzzleEdges() {
     const direction=Math.random()<.5?-1:1;
     const depth=.78+Math.random()*.38;
     const offset=-.075+Math.random()*.15;
-    const radius=.82+Math.random()*.34;
+    const radius=1;
     return {direction,depth,offset,radius};
   };
   const opposite=edge=>({...edge,direction:-edge.direction,offset:-edge.offset});
@@ -183,7 +183,7 @@ function makePuzzleSlotCanvas(index,cellWidth,cellHeight) {
   tracePuzzlePiece(ctx,cellWidth,cellHeight,tab,puzzleEdges[index]);
   ctx.fillStyle='rgba(255,255,255,.12)'; ctx.fill();
   tracePuzzlePiece(ctx,cellWidth,cellHeight,tab,puzzleEdges[index]);
-  ctx.lineWidth=2.25; ctx.strokeStyle='rgba(38,52,75,.62)'; ctx.stroke();
+  ctx.lineWidth=2.25; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='rgba(38,52,75,.62)'; ctx.stroke();
   return canvas;
 }
 
@@ -199,7 +199,7 @@ function makePuzzleCanvas(index,image,cellWidth,cellHeight,boardWidth,boardHeigh
   tracePuzzlePiece(ctx,cellWidth,cellHeight,tab,puzzleEdges[index]); ctx.save(); ctx.clip();
   const col=index%puzzleColumns,row=Math.floor(index/puzzleColumns);
   ctx.drawImage(image,tab-col*cellWidth,tab-row*cellHeight,boardWidth,boardHeight); ctx.restore();
-  tracePuzzlePiece(ctx,cellWidth,cellHeight,tab,puzzleEdges[index]); ctx.lineWidth=2.25; ctx.strokeStyle='#26344b'; ctx.stroke();
+  tracePuzzlePiece(ctx,cellWidth,cellHeight,tab,puzzleEdges[index]); ctx.lineWidth=2.25; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#26344b'; ctx.stroke();
   canvas.addEventListener('pointerdown',startPuzzleDrag);
   canvas.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')selectPuzzlePiece(index,canvas)});
   return canvas;
