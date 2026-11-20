@@ -1,0 +1,83 @@
+.memory-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+.memory-options label {
+  display: grid;
+  gap: 5px;
+  font-weight: 700;
+}
+.memory-options select, .memory-options input {
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+  border: 2px solid #b9a6d7;
+  border-radius: 12px;
+  padding: 8px;
+  max-width: 100%;
+  min-height: 44px;
+}
+.memory-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 12px 0;
+}
+.memory-turn, .memory-scores {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.memory-score {
+  background: #fff;
+  padding: 6px 10px;
+  border: 2px solid #d8e5df;
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+.memory-score.active {
+  background: #ffedac;
+  border-color: #9d7414;
+  font-weight: 700;
+}
+#memorygrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+#memorygrid.memory-grid-wide {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+@media (min-width: 680px) {
+  #memorygrid.memory-grid-wide {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+#memorygrid .memory-card {
+  min-width: 0;
+  min-height: 44px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  line-height: 1.05;
+  font-size: clamp(23px, 6vw, 42px);
+}
+#memorygrid .memory-card small {
+  font-size: clamp(11px, 2.7vw, 20px);
+  font-weight: bold;
+}
+#memorygrid .memory-card:disabled {
+  opacity: 1;
+  cursor: default;
+}
+#memorygrid .memory-card:focus-visible {
+  outline: 3px solid #163d31;
+  outline-offset: 2px;
+}
