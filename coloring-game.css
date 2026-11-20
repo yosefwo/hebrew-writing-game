@@ -1,0 +1,88 @@
+.coloring-picker, .coloring-tools, .coloring-palette, .coloring-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 10px;
+}
+.coloring-picker, .coloring-toolbar {
+  margin: 10px auto;
+  max-width: 850px;
+}
+.coloring-toolbar {
+  display: grid;
+  gap: 8px;
+}
+.coloring-tools button, .coloring-tools select, .coloring-picker select, .coloring-toggle {
+  font: inherit;
+  color: var(--ink);
+  background: white;
+  border: 2px solid #c6dbd1;
+  border-radius: 12px;
+  padding: 5px 9px;
+  min-height: 42px;
+  max-width: 100%;
+}
+.coloring-tools button[aria-pressed="true"] {
+  background: #ffedac;
+  border-color: #886615;
+}
+.coloring-tools label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.coloring-palette button {
+  display: inline-grid;
+  justify-items: center;
+  gap: 3px;
+  min-width: 43px;
+  padding: 3px;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.3;
+}
+.coloring-palette button[aria-pressed="true"] {
+  background: #fffdf7;
+  border-color: var(--green);
+}
+.coloring-swatch {
+  display: block;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: var(--swatch);
+  border: 1px solid #53676a;
+}
+#coloring-custom {
+  width: 44px;
+  min-height: 42px;
+}
+.coloring-tools button:disabled {
+  opacity: .52;
+}
+.coloring-paper {
+  width: min(100%, 630px);
+  position: relative;
+  margin: 0 auto 16px;
+  background: white;
+  outline: 2px solid #c6dbd1;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.coloring-paper canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+#coloring-paint {
+  touch-action: none;
+  cursor: crosshair;
+}
+#coloring-outline {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}

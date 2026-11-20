@@ -35,9 +35,7 @@ let lastPuzzleBoardWidth = 0;
 let puzzleResizeTimer = null;
 
 function startPuzzle(themeName) {
-  document.body.classList.remove('puzzle-playing');
   puzzleTheme = {...puzzleThemes[themeName],image:puzzlePictureGroups[0].images[0]};
-  show('puzzlegame');
   byId('puzzletitle').textContent = puzzleTheme.title;
   byId('puzzleback').onclick = () => { document.body.classList.remove('puzzle-playing'); show(puzzleTheme.back); };
   byId('puzzlepreview').src = puzzleTheme.image;
@@ -45,6 +43,7 @@ function startPuzzle(themeName) {
   byId('puzzlesetup').classList.remove('hidden');
   byId('puzzleplay').classList.add('hidden');
   byId('puzzlefeedback').textContent = '';
+  show('puzzlegame');
 }
 
 function renderPuzzlePictureChoices() {
