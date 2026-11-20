@@ -12,6 +12,13 @@ const openColoring = (() => {
     ['#6346a8', 'אִינְדִּיגוֹ'], ['#934aba', 'סָגֹל'], ['#ec7cae', 'וָרֹד'],
     ['#8c5438', 'חוּם'], ['#808890', 'אָפֹר'], ['#242833', 'שָׁחֹר'], ['#ffffff', 'לָבָן']
   ];
+  const plainLabels = new Map([
+    ['נִקּוּד', 'ניקוד'], ['עֹבִי הָעֵט', 'עובי העט'], ['עָבֶה מְאֹד', 'עבה מאוד'],
+    ['בִּטּוּל פְּעֻלָּה', 'ביטול פעולה'], ['נִקּוּי', 'ניקוי'], ['כִּתָּה א׳', 'כיתה א׳'],
+    ['אָדֹם', 'אדום'], ['כָּתֹם', 'כתום'], ['צָהֹב', 'צהוב'], ['יָרֹק', 'ירוק'],
+    ['כָּחֹל', 'כחול'], ['סָגֹל', 'סגול'], ['וָרֹד', 'ורוד'], ['אָפֹר', 'אפור'], ['שָׁחֹר', 'שחור'],
+    ...puzzlePictureGroups.map((group, index) => [topicTitles[index], group.title])
+  ]);
   const fileName = path => path.split('?')[0].split('/').pop();
   const pages = [
     ...puzzlePictureGroups.map((group, index) => ({ title: topicTitles[index], images: group.images })),
@@ -45,13 +52,15 @@ const openColoring = (() => {
   let dirty = false;
 
   function textWithNiqqud(value) {
-    return niqqud.checked ? value : value.replace(/[\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7]/g, '');
+    if (niqqud.checked) return value;
+    if (plainLabels.has(value)) return plainLabels.get(value);
+    return value.replace(/[\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7]/g, '');
   }
 
   function renderLabels() {
     byId('coloring').querySelectorAll('[data-coloring-label]').forEach(element => {
       element.dataset.coloringLabel ||= element.textContent;
-      element.textContent = textWithNiqqud(element.dataset.coloringLabel);
+      element.textContent = textWithNiqqud(element.dataset.coloringLabel) + (element.dataset.coloringSuffix || '');
     });
     status.textContent = textWithNiqqud(status.dataset.message || '');
   }
@@ -65,7 +74,8 @@ const openColoring = (() => {
     images.forEach((image, index) => {
       const option = document.createElement('option');
       option.value = fileName(image);
-      option.dataset.coloringLabel = images.length > 1 ? `${title} · ${index + 1}` : title;
+      option.dataset.coloringLabel = title;
+      if (images.length > 1) option.dataset.coloringSuffix = ` · ${index + 1}`;
       page.append(option);
     });
   }
