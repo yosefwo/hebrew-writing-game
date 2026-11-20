@@ -13,15 +13,17 @@ const openMemorySetup = (() => {
     ['🐘', 'פִּיל'], ['🐢', 'צָב'], ['🐵', 'קוֹף'], ['🚆', 'רַכֶּבֶת'],
     ['☀️', 'שֶׁמֶשׁ'], ['🍎', 'תַּפּוּחַ']
   ];
+  // A full holam or shuruk uses a vav to carry the opening vowel.
+  const firstLetter = word => word.match(/^[א-ת]\p{M}*(?:ו[ֹּ])?/u)[0];
   const identical = (face, label = face) => [{ face, label }, { face, label }];
   const games = {
     animals: ['זיכרון חיות', 'מצאו שתי חיות זהות.', animals.map(([face, name]) => identical(face, name))],
     numbers: ['זיכרון מספרים', 'מצאו שני מספרים זהים.', Array.from({ length: 20 }, (_, i) => identical(String(i + 1)))],
     pictures: ['זיכרון אות ותמונה', 'התאימו כל תמונה לאות הראשונה של המילה.', pictures.map(([face, name]) => [
-      { face: name[0], label: 'האות ' + name[0] },
+      { face: firstLetter(name), label: firstLetter(name) },
       { face, label: name, word: name }
     ])],
-    letters: ['זיכרון אותיות', 'מצאו שתי אותיות זהות.', letters.map(letter => identical(letter, 'האות ' + letter))]
+    letters: ['זיכרון אותיות', 'מצאו שתי אותיות עם אותו ניקוד.', pictures.map(([, name]) => identical(firstLetter(name)))]
   };
 
   const setup = byId('memorysetup');
